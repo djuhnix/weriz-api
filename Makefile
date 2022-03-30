@@ -1,3 +1,5 @@
+dev:
+	docker-compose up -d
 build:
 	docker build -t ${tag} .
 clean:

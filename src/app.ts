@@ -73,16 +73,16 @@ class App {
     const options = {
       swaggerDefinition: {
         info: {
-          title: 'REST API',
+          title: 'WERIZ API',
           version: '1.0.0',
-          description: 'Example docs',
+          description: 'REST API routes documentation',
         },
       },
-      apis: ['swagger.yaml'],
+      apis: ['./config/swagger.yaml'],
     };
 
     const specs = swaggerJSDoc(options);
-    this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+    this.app.use('/docs', swaggerUi.serve, swaggerUi.setup(specs));
   }
 
   private initializeErrorHandling() {

@@ -1,5 +1,8 @@
 # Common build stage
-FROM node:14.14.0-alpine3.12 as common-build-stage
+FROM node:16.14.2-alpine3.15 as common-build-stage
+
+ARG PORT
+ENV PORT $PORT
 
 COPY . ./app
 
@@ -7,7 +10,7 @@ WORKDIR /app
 
 RUN npm install
 
-EXPOSE 3000
+EXPOSE $PORT
 
 # Development build stage
 FROM common-build-stage as development-build-stage

@@ -13,5 +13,5 @@
 jest.config.js
 
 # docker
-Dockerfile
+.docker/node/Dockerfile
 docker-compose.yml

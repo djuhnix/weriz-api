@@ -2,23 +2,27 @@ version: '3.7'
 
 services:
   proxy:
-    image: nginx:alpine
-    container_name: proxy
+    build:
+      context: .
+      dockerfile: .docker/nginx/Dockerfile
+    container_name: weriz-proxy
+    environment:
+      - PORT=${PORT}
     ports:
-      - '80:80'
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ${PROXY_EXT_PORT}:80
     restart: 'unless-stopped'
     networks:
       - backend
   server:
+    container_name: weriz-server
     build:
       context: ./
       target: development-build-stage
-      dockerfile: Dockerfile
-    container_name: server
+      dockerfile: .docker/node/Dockerfile
+      args:
+        - PORT=${PORT}
     ports:
-      - '3000:3000'
+      - ${PORT}:${PORT}
     volumes:
       - ./:/app
       - /app/node_modules
@@ -26,12 +30,12 @@ services:
     networks:
       - backend
     links:
-      - mongo
+      - database
     depends_on:
-      - mongo
-  mongo:
+      - database
+  database:
     image: mvertes/alpine-mongo
-    container_name: mongo
+    container_name: weriz-db
     ports:
       - '27017:27017'
     networks:
@@ -39,6 +43,7 @@ services:
 
 networks:
   backend:
+    name: weriz-backend
     driver: bridge
 
 volumes:
