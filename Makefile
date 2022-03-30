@@ -1,4 +1,6 @@
 dev:
+	docker-compose up -d
+dev-build:
 	docker-compose up --build -d
 build:
 	docker build -t ${tag} .
