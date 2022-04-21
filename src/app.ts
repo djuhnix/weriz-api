@@ -8,7 +8,7 @@ import morgan from 'morgan';
 import { connect, set } from 'mongoose';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-import { NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS } from '@config';
+import { NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS, APP_NAME, APP_VERSION } from '@config';
 import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
@@ -73,8 +73,8 @@ class App {
     const options = {
       swaggerDefinition: {
         info: {
-          title: 'WERIZ API',
-          version: '1.0.0',
+          title: APP_NAME,
+          version: APP_VERSION,
           description: 'REST API routes documentation',
         },
       },
