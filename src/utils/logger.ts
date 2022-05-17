@@ -1,8 +1,8 @@
 import { existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
-import winston from 'winston';
+import { createLogger, format, transports } from 'winston';
+import { LOCALE, LOG_DIR, TIME_ZONE } from '@config';
 import winstonDaily from 'winston-daily-rotate-file';
-import { LOG_DIR } from '@config';
 
 // logs dir
 const logDir: string = join(__dirname, LOG_DIR);
@@ -12,18 +12,22 @@ if (!existsSync(logDir)) {
   mkdirSync(logDir);
 }
 
+const timeZoned = () => {
+  return new Date().toLocaleString(LOCALE, {
+    timeZone: TIME_ZONE,
+  });
+};
 // Define log format
-const logFormat = winston.format.printf(({ timestamp, level, message }) => `${timestamp} ${level}: ${message}`);
+const logFormat = format.printf(({ timestamp, level, /*label,*/ message }) => `${timestamp} : ${level} : ${message}`);
 
 /*
  * Log Level
  * error: 0, warn: 1, info: 2, http: 3, verbose: 4, debug: 5, silly: 6
  */
-const logger = winston.createLogger({
-  format: winston.format.combine(
-    winston.format.timestamp({
-      format: 'YYYY-MM-DD HH:mm:ss',
-    }),
+const logger = createLogger({
+  format: format.combine(
+    // format.label({ label: 'main' }),
+    format.timestamp({ format: timeZoned }),
     logFormat,
   ),
   transports: [
@@ -52,8 +56,8 @@ const logger = winston.createLogger({
 });
 
 logger.add(
-  new winston.transports.Console({
-    format: winston.format.combine(winston.format.splat(), winston.format.colorize()),
+  new transports.Console({
+    format: format.combine(format.splat(), format.colorize()),
   }),
 );
 
