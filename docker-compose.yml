@@ -5,16 +5,18 @@ services:
     build:
       context: .
       dockerfile: .docker/nginx/Dockerfile
-    container_name: weriz-proxy
+    container_name: ${APP_NAME}-proxy
     environment:
+      - APP_NAME=${APP_NAME}
       - PORT=${PORT}
+      - PROXY_EXT_PORT=${PROXY_EXT_PORT}
     ports:
       - ${PROXY_EXT_PORT}:80
     restart: 'unless-stopped'
     networks:
       - backend
   server:
-    container_name: weriz-server
+    container_name: ${APP_NAME}-server
     build:
       context: ./
       target: development-build-stage
@@ -35,9 +37,11 @@ services:
       - database
   database:
     image: mvertes/alpine-mongo
-    container_name: weriz-db
+    container_name: ${APP_NAME}-db
+    environment:
+      - DB_PORT=${DB_PORT}
     ports:
-      - '27017:27017'
+      - ${DB_PORT}:${DB_PORT}
     networks:
       - backend
 
