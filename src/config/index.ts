@@ -2,6 +2,13 @@ import { config } from 'dotenv';
 config({ path: `.env.${process.env.NODE_ENV || 'development'}` });
 
 export const CREDENTIALS = process.env.CREDENTIALS === 'true';
+export const TIME_ZONE = 'Europe/Paris';
+export const LOCALE = 'fr-FR';
+// auto set these values
+// /!\ docker container timezone are not synced with host
+// export const TIME_ZONE = Intl.DateTimeFormat().resolvedOptions().timeZone;
+// export const LOCALE = Intl.DateTimeFormat().resolvedOptions().locale;
+
 export const {
   APP_NAME,
   APP_VERSION,
