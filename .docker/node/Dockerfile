@@ -10,12 +10,12 @@ WORKDIR /app
 
 RUN yarn
 
-EXPOSE $PORT
-
 # Development build stage
 FROM common-build-stage as development-build-stage
 
 ENV NODE_ENV development
+
+EXPOSE $PORT
 
 CMD ["yarn", "dev"]
 
