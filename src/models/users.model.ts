@@ -8,6 +8,9 @@ class User {
   @prop({ type: String, required: true })
   public password: string;
 
+  @prop({ default: false })
+  public authenticated?: boolean;
+
   public createdAt?: Date;
 
   public updatedAt?: Date;
