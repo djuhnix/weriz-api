@@ -9,16 +9,19 @@ const validationMiddleware = (
   skipMissingProperties = false,
   whitelist = true,
   forbidNonWhitelisted = true,
+  enableImplicitConversion = true,
 ): RequestHandler => {
   return (req, res, next) => {
-    validate(plainToInstance(type, req[value]), { skipMissingProperties, whitelist, forbidNonWhitelisted }).then((errors: ValidationError[]) => {
-      if (errors.length > 0) {
-        const message = errors.map((error: ValidationError) => Object.values(error.constraints)).join(', ');
-        next(new HttpException(400, message));
-      } else {
-        next();
-      }
-    });
+    validate(plainToInstance(type, req[value], { enableImplicitConversion }), { skipMissingProperties, whitelist, forbidNonWhitelisted }).then(
+      (errors: ValidationError[]) => {
+        if (errors.length > 0) {
+          const message = errors.map((error: ValidationError) => Object.values(error.constraints)).join(', ');
+          next(new HttpException(400, message));
+        } else {
+          next();
+        }
+      },
+    );
   };
 };
 
