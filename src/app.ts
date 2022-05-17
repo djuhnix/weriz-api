@@ -49,7 +49,9 @@ class App {
       set('debug', true);
     }
 
-    connect(dbConnection);
+    connect(dbConnection)
+      .then(() => logger.info('connected to database successfully'))
+      .catch(error => logger.error('connection to database failed :', error));
   }
 
   private initializeMiddlewares() {
