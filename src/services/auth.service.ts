@@ -8,6 +8,7 @@ import { User } from '@interfaces/users.interface';
 import userModel from '@models/users.model';
 import { isEmpty } from '@utils/util';
 import UserService from '@services/users.service';
+import { logger } from '@utils/logger';
 
 class AuthService {
   public userService = new UserService();
@@ -16,28 +17,42 @@ class AuthService {
     return this.userService.createUser(userData);
   }
 
-  public async login(userData: CreateUserDto): Promise<{ cookie: string; findUser: User }> {
+  public async login(userData: CreateUserDto): Promise<{ user: User; cookie: string; tokenData: TokenData }> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
-    const findUser: User = await userModel.findOne({ email: userData.email });
-    if (!findUser) throw new HttpException(409, `You're email ${userData.email} not found`);
+    const emailFilter = { email: userData.email };
+    const user: User = await userModel.findOne(emailFilter);
+    if (!user) throw new HttpException(409, `You're email ${userData.email} not found`);
 
-    const isPasswordMatching: boolean = await compare(userData.password, findUser.password);
+    const isPasswordMatching: boolean = await compare(userData.password, user.password);
     if (!isPasswordMatching) throw new HttpException(409, "You're password not matching");
 
-    const tokenData = this.createToken(findUser);
+    user.authenticated = true;
+    userModel.updateOne(emailFilter, user, { upsert: true }).catch(AuthService.handleUserAuthenticatedDBUpdate);
+
+    const tokenData = this.createToken(user);
     const cookie = this.createCookie(tokenData);
 
-    return { cookie, findUser };
+    return { cookie, user, tokenData };
   }
 
   public async logout(userData: User): Promise<User> {
-    if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
+    if (isEmpty(userData)) throw new HttpException(400, `Unable to logout. ${userData.email} not logged.`);
 
-    const findUser: User = await userModel.findOne({ email: userData.email, password: userData.password });
-    if (!findUser) throw new HttpException(409, `You're email ${userData.email} not found`);
+    const user: void | User = await userModel
+      .findOneAndUpdate({ email: userData.email }, { authenticated: false }, { returnDocument: 'after' })
+      .catch(AuthService.handleUserAuthenticatedDBUpdate);
+    if (!user) throw new HttpException(409, `Email ${userData.email} not found`);
 
-    return findUser;
+    return user;
+  }
+
+  private static handleUserAuthenticatedDBUpdate(error) {
+    if (error) {
+      logger.error(error);
+      throw new HttpException(500, `Error updating user.authenticated to true`);
+    }
+    logger.info('user.authenticated set to true');
   }
 
   public createToken(user: User): TokenData {
