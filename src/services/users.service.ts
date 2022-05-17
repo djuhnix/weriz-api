@@ -1,5 +1,5 @@
 import { hash } from 'bcrypt';
-import { CreateUserDto } from '@dtos/users.dto';
+import { CreateUserDto, GetUserDto } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { User } from '@interfaces/users.interface';
 import userModel from '@models/users.model';
@@ -8,8 +8,8 @@ import { isEmpty } from '@utils/util';
 class UserService {
   // public users = userModel;
 
-  public async findAllUser(): Promise<User[]> {
-    return userModel.find();
+  public async findAllUser(filter: GetUserDto = undefined): Promise<User[]> {
+    return userModel.find(filter);
   }
 
   public async findUserById(userId: string): Promise<User> {

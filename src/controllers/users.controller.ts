@@ -1,15 +1,19 @@
 import { NextFunction, Request, Response } from 'express';
-import { CreateUserDto } from '@dtos/users.dto';
+import { CreateUserDto, GetUserDto } from '@dtos/users.dto';
 import { User } from '@interfaces/users.interface';
 import UserService from '@services/users.service';
+import { RequestWithUser } from '@interfaces/auth.interface';
+import { logger } from '@utils/logger';
 
 class UsersController {
   public userService = new UserService();
 
   public getUsers = async (req: Request, res: Response, next: NextFunction) => {
+    logger.info('getUsers.start');
     try {
-      const findAllUsersData: User[] = await this.userService.findAllUser();
-
+      const filter: GetUserDto = req.query;
+      const findAllUsersData: User[] = await this.userService.findAllUser(filter);
+      logger.info('getUsers.end');
       res.status(200).json({ data: findAllUsersData, message: 'findAll' });
     } catch (error) {
       next(error);
@@ -56,6 +60,17 @@ class UsersController {
       const deleteUserData: User = await this.userService.deleteUser(userId);
 
       res.status(200).json({ data: deleteUserData, message: 'deleted' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getConnected = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    logger.info(this.getConnected.name, 'start');
+    try {
+      const userData: User = req.user;
+      logger.info(this.getConnected.name, 'end');
+      res.status(200).json({ data: userData, message: 'connected' });
     } catch (error) {
       next(error);
     }
