@@ -9,13 +9,13 @@ class UserService {
   // public users = userModel;
 
   public async findAllUser(filter: GetUserDto = undefined): Promise<User[]> {
-    return userModel.find(filter);
+    return userModel.find(filter, { password: 0 });
   }
 
   public async findUserById(userId: string): Promise<User> {
     if (isEmpty(userId)) throw new HttpException(400, "You're not userId");
 
-    const findUser: User = await userModel.findOne({ _id: userId });
+    const findUser: User = await userModel.findOne({ _id: userId }, { password: 0 });
     if (!findUser) throw new HttpException(409, "You're not user");
 
     return findUser;
@@ -25,10 +25,12 @@ class UserService {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
     const findUser: User = await userModel.findOne({ email: userData.email });
-    if (findUser) throw new HttpException(409, `You're email ${userData.email} already exists`);
+    if (findUser) throw new HttpException(409, `Email ${userData.email} already exists`);
 
     const hashedPassword = await hash(userData.password, 10);
-    return await userModel.create({ ...userData, password: hashedPassword });
+    const user: User = await userModel.create({ ...userData, password: hashedPassword });
+    user.password = undefined;
+    return user;
   }
 
   public async updateUser(userId: string, userData: CreateUserDto): Promise<User> {
