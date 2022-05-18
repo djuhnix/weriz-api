@@ -11,17 +11,19 @@ import UserService from '@services/users.service';
 import { logger } from '@utils/logger';
 
 class AuthService {
-  public userService = new UserService();
+  private readonly _name = AuthService.name + '.';
+  private userService = new UserService();
 
   public async signup(userData: CreateUserDto): Promise<User> {
     return this.userService.createUser(userData);
   }
 
   public async login(userData: CreateUserDto): Promise<{ user: User; cookie: string; tokenData: TokenData }> {
+    logger.info(this._name + this.login.name + '.start', { test: 'hello' });
     if (isEmpty(userData)) throw new HttpException(400, `User data are empty`);
 
     const emailFilter = { email: userData.email };
-    const user: User = await userModel.findOne(emailFilter, { password: 0 });
+    const user: User = await userModel.findOne(emailFilter);
     if (!user) throw new HttpException(409, `Email ${userData.email} not found`);
 
     const isPasswordMatching: boolean = await compare(userData.password, user.password);
@@ -33,6 +35,8 @@ class AuthService {
     const tokenData = this.createToken(user);
     const cookie = this.createCookie(tokenData);
 
+    user.password = undefined;
+
     return { cookie, user, tokenData };
   }
 
@@ -43,8 +47,6 @@ class AuthService {
       .findOneAndUpdate({ email: userData.email }, { authenticated: false }, { returnDocument: 'after', projection: { password: 0 } })
       .catch(AuthService.handleUserAuthenticatedDBUpdate);
     if (!user) throw new HttpException(409, `Email ${userData.email} not found`);
-
-    user.password = undefined;
 
     return user;
   }
