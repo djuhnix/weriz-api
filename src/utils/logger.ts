@@ -3,6 +3,7 @@ import { join } from 'path';
 import { createLogger, format, transports } from 'winston';
 import { LOCALE, LOG_DIR, TIME_ZONE } from '@config';
 import winstonDaily from 'winston-daily-rotate-file';
+import { isEmpty } from '@utils/util';
 
 // logs dir
 const logDir: string = join(__dirname, LOG_DIR);
@@ -18,7 +19,13 @@ const timeZoned = () => {
   });
 };
 // Define log format
-const logFormat = format.printf(({ timestamp, level, /*label,*/ message }) => `${timestamp} : ${level} : ${message}`);
+const logFormat = format.printf(({ timestamp, level, metadata, /* label,*/ message }) => {
+  let out = `${timestamp} : ${level} : ${message}`;
+  if (!isEmpty(metadata)) {
+    out += ` : ${JSON.stringify(metadata)}`;
+  }
+  return out;
+});
 
 /*
  * Log Level
@@ -27,6 +34,7 @@ const logFormat = format.printf(({ timestamp, level, /*label,*/ message }) => `$
 const logger = createLogger({
   format: format.combine(
     // format.label({ label: 'main' }),
+    format.metadata(),
     format.timestamp({ format: timeZoned }),
     logFormat,
   ),
@@ -60,7 +68,15 @@ logger.add(
     format: format.combine(format.splat(), format.colorize()),
   }),
 );
-
+/*
+if (process.env.NODE_ENV !== 'production') {
+  logger.add(
+    new transports.Console({
+      format: format.simple(),
+    }),
+  );
+}
+*/
 const stream = {
   write: (message: string) => {
     logger.info(message.substring(0, message.lastIndexOf('\n')));
