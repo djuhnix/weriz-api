@@ -7,7 +7,7 @@ import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
 import { User } from '@interfaces/users.interface';
 import { UserModel } from '@/models';
 import { isEmpty } from '@utils/util';
-import UserService from '@services/users.service';
+import UserService from '@services/user.service';
 import { logger } from '@utils/logger';
 
 class AuthService {
@@ -44,9 +44,11 @@ class AuthService {
   public async logout(userData: User): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, `Unable to logout. ${userData.email} not logged.`);
 
-    const user: void | User = await UserModel
-      .findOneAndUpdate({ email: userData.email }, { authenticated: false }, { returnDocument: 'after', projection: { password: 0 } })
-      .catch(AuthService.handleUserAuthenticatedDBUpdate);
+    const user: void | User = await UserModel.findOneAndUpdate(
+      { email: userData.email },
+      { authenticated: false },
+      { returnDocument: 'after', projection: { password: 0 } },
+    ).catch(AuthService.handleUserAuthenticatedDBUpdate);
     if (!user) throw new HttpException(409, `Email ${userData.email} not found`);
 
     return user;

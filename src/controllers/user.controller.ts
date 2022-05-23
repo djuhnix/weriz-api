@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from 'express';
 import { CreateUserDto, GetUserDto } from '@dtos/users.dto';
 import { User } from '@interfaces/users.interface';
-import UserService from '@services/users.service';
+import UserService from '@services/user.service';
 import { RequestWithUser } from '@interfaces/auth.interface';
 import { logger } from '@utils/logger';
 
-class UsersController {
+class UserController {
   public userService = new UserService();
 
   public getUsers = async (req: Request, res: Response, next: NextFunction) => {
@@ -77,4 +77,4 @@ class UsersController {
   };
 }
 
-export default UsersController;
+export default UserController;
