@@ -4,7 +4,7 @@ import { SECRET_KEY } from '@config';
 import { HttpException } from '@exceptions/HttpException';
 import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
 import { logger } from '@utils/logger';
-import userModel from '@models/users.model';
+import userModel from '@models/user.model';
 
 const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   logger.info(authMiddleware.name, 'start');
