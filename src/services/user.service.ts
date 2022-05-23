@@ -1,5 +1,5 @@
 import { hash } from 'bcrypt';
-import { CreateUserDto, GetUserDto } from '@dtos/users.dto';
+import { CreateUserDto, GetUserDto } from '@dtos/user.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { User } from '@interfaces/users.interface';
 import { UserModel } from '@/models';
