@@ -5,7 +5,7 @@ import { CreateUserDto } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
 import { User } from '@interfaces/users.interface';
-import userModel from '@models/user.model';
+import { UserModel } from '@/models';
 import { isEmpty } from '@utils/util';
 import UserService from '@services/users.service';
 import { logger } from '@utils/logger';
@@ -23,14 +23,15 @@ class AuthService {
     if (isEmpty(userData)) throw new HttpException(400, `User data are empty`);
 
     const emailFilter = { email: userData.email };
-    const user: User = await userModel.findOne(emailFilter);
+    const user: User = await UserModel.findOne(emailFilter);
+
     if (!user) throw new HttpException(409, `Email ${userData.email} not found`);
 
     const isPasswordMatching: boolean = await compare(userData.password, user.password);
     if (!isPasswordMatching) throw new HttpException(409, 'Password not matching');
 
     user.authenticated = true;
-    userModel.updateOne(emailFilter, user, { upsert: true }).catch(AuthService.handleUserAuthenticatedDBUpdate);
+    UserModel.updateOne(emailFilter, user, { upsert: true }).catch(AuthService.handleUserAuthenticatedDBUpdate);
 
     const tokenData = this.createToken(user);
     const cookie = this.createCookie(tokenData);
@@ -43,7 +44,7 @@ class AuthService {
   public async logout(userData: User): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, `Unable to logout. ${userData.email} not logged.`);
 
-    const user: void | User = await userModel
+    const user: void | User = await UserModel
       .findOneAndUpdate({ email: userData.email }, { authenticated: false }, { returnDocument: 'after', projection: { password: 0 } })
       .catch(AuthService.handleUserAuthenticatedDBUpdate);
     if (!user) throw new HttpException(409, `Email ${userData.email} not found`);

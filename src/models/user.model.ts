@@ -1,7 +1,9 @@
-import { prop, getModelForClass, modelOptions } from '@typegoose/typegoose';
+import { prop, getModelForClass, modelOptions, Ref } from '@typegoose/typegoose';
+import DefaultModel from '@models/default.model';
+import { Member } from '@models/member.model';
 
 @modelOptions({ schemaOptions: { collection: 'users', timestamps: true } })
-class User {
+class User extends DefaultModel {
   @prop({ type: String, required: true, unique: true })
   public email: string;
 
@@ -11,11 +13,13 @@ class User {
   @prop({ default: false })
   public authenticated?: boolean;
 
-  public createdAt?: Date;
-
-  public updatedAt?: Date;
+  @prop({ ref: () => Member, default: {} })
+  public member: Ref<Member>;
 }
 
-const UserModel = getModelForClass(User);
+// const UserModel = getModelForClass(User);
 
-export default UserModel;
+export {
+  User,
+  // UserModel
+};
