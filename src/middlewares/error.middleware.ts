@@ -7,10 +7,9 @@ const errorMiddleware = (error: HttpException, req: Request, res: Response, next
   try {
     const status: number = error.status || 500;
     const message: string = NODE_ENV == 'development' ? error.message || 'Something went wrong' : 'internal_error';
-
     logger.error(`status = ${status}, message = ${message}`);
 
-    res.status(status).json({ message });
+    res.status(status).json({ message, error: NODE_ENV == 'development' ? error : {} });
   } catch (error) {
     next(error);
   }
