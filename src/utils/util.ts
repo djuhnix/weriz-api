@@ -1,7 +1,6 @@
 import { sample } from 'lodash';
 import { AlphabetEnum } from '@utils/enum/alphabet.enum';
 import { HttpException } from '@exceptions/HttpException';
-import { CreateMemberDto } from '@dtos/member.dto';
 import { Types } from 'mongoose';
 
 /**
@@ -57,4 +56,17 @@ export const checkEmpty = (data: any, conflict = false) => {
  */
 export const checkObjectId = (id: string) => {
   if (!Types.ObjectId.isValid(id)) throw new HttpException(400, 'Invalid userId given');
+};
+
+/**
+ * Usernames can only have:
+ *     - Lowercase Letters (a-z)
+ *     - Numbers (0-9)
+ *     - Dots (.)
+ *     - Underscores (_)
+ * @param username
+ */
+export const isUserNameValid = (username: string) => {
+  const res = /^[a-z\d_.]+$/.exec(username);
+  return !!res;
 };
