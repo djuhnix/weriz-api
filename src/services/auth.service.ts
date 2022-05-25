@@ -22,16 +22,16 @@ class AuthService {
     logger.info(this._name + this.login.name + '.start', { test: 'hello' });
     if (isEmpty(userData)) throw new HttpException(400, `User data are empty`);
 
-    const emailFilter = { email: userData.email };
-    const user: User = await UserModel.findOne(emailFilter);
+    const usernameFilter = { username: userData.username };
+    const user: User = await UserModel.findOne(usernameFilter);
 
-    if (!user) throw new HttpException(409, `Email ${userData.email} not found`);
+    if (!user) throw new HttpException(500, `Username ${userData.username} not found`);
 
     const isPasswordMatching: boolean = await compare(userData.password, user.password);
     if (!isPasswordMatching) throw new HttpException(409, 'Password not matching');
 
     user.authenticated = true;
-    UserModel.updateOne(emailFilter, user, { upsert: true }).catch(AuthService.handleUserAuthenticatedDBUpdate);
+    UserModel.updateOne(usernameFilter, user, { upsert: true }).catch(AuthService.handleUserAuthenticatedDBUpdate);
 
     const tokenData = this.createToken(user);
     const cookie = this.createCookie(tokenData);
@@ -42,14 +42,14 @@ class AuthService {
   }
 
   public async logout(userData: User): Promise<User> {
-    if (isEmpty(userData)) throw new HttpException(400, `Unable to logout. ${userData.email} not logged.`);
+    if (isEmpty(userData)) throw new HttpException(400, `Unable to logout. ${userData.username} not logged.`);
 
     const user: void | User = await UserModel.findOneAndUpdate(
-      { email: userData.email },
+      { username: userData.username },
       { authenticated: false },
       { returnDocument: 'after', projection: { password: 0 } },
     ).catch(AuthService.handleUserAuthenticatedDBUpdate);
-    if (!user) throw new HttpException(409, `Email ${userData.email} not found`);
+    if (!user) throw new HttpException(500, `Username ${userData.username} not found`);
 
     return user;
   }

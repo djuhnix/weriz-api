@@ -5,6 +5,9 @@ import DefaultModel from '@models/default.model';
 
 @modelOptions({ schemaOptions: { collection: 'members', timestamps: true } })
 class Member extends DefaultModel {
+  @prop({ type: String, required: false, unique: true })
+  public email: string;
+
   @prop({ type: String, required: false })
   public firstname: string;
 

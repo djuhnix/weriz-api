@@ -3,7 +3,7 @@ import { CreateUserDto, GetUserDto } from '@dtos/user.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { User } from '@interfaces/users.interface';
 import { UserModel } from '@/models';
-import { checkEmpty, checkObjectId } from '@utils/util';
+import { checkEmpty, checkObjectId, isUserNameValid } from '@utils/util';
 import MemberService from '@services/member.service';
 import { logger } from '@utils/logger';
 
@@ -17,22 +17,23 @@ class UserService {
   }
 
   public async findUserById(userId: string): Promise<User> {
+    logger.info(this._name + 'findUserById.start');
     checkObjectId(userId);
-
     const findUser: User = await this.users.findOne({ _id: userId }, { password: 0 });
-    if (!findUser) throw new HttpException(409, 'Your not user');
-
+    checkEmpty(findUser, true);
+    logger.info(this._name + 'findUserById.end');
     return findUser;
   }
 
   public async createUser(userData: CreateUserDto): Promise<User> {
     logger.info(this._name + 'createUser.start');
     checkEmpty(userData);
+    if (!isUserNameValid(userData.username)) throw new HttpException(400, 'Username format error');
 
     logger.info('trying to find user');
-    const findUser: User = await this.users.findOne({ email: userData.email });
+    const findUser: User = await this.users.findOne({ username: userData.username });
     logger.info('user', findUser);
-    if (findUser) throw new HttpException(409, `Email ${userData.email} already exists`);
+    if (findUser) throw new HttpException(409, `Username ${userData.username} already exists`);
 
     const hashedPassword = await hash(userData.password, 10);
     logger.info('password hashed');
@@ -48,9 +49,9 @@ class UserService {
   public async updateUser(userId: string, userData: CreateUserDto): Promise<User> {
     checkEmpty(userData);
 
-    if (userData.email) {
-      const findUser: User = await this.users.findOne({ email: userData.email });
-      if (findUser && findUser._id != userId) throw new HttpException(409, `You're email ${userData.email} already exists`);
+    if (userData.username) {
+      const findUser: User = await this.users.findOne({ username: userData.username });
+      if (findUser && findUser._id != userId) throw new HttpException(409, `Username ${userData.username} already exists`);
     }
 
     if (userData.password) {

@@ -5,7 +5,7 @@ import { Member } from '@models/member.model';
 @modelOptions({ schemaOptions: { collection: 'users', timestamps: true } })
 class User extends DefaultModel {
   @prop({ type: String, required: true, unique: true })
-  public email: string;
+  public username: string;
 
   @prop({ type: String, required: true })
   public password: string;
@@ -16,8 +16,6 @@ class User extends DefaultModel {
   @prop({ ref: () => Member, foreignField: 'user', localField: '_id', justOne: true, autopopulate: true })
   public member?: Ref<Member>;
 }
-
-// const UserModel = getModelForClass(User);
 
 export {
   User,
