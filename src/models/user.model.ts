@@ -1,4 +1,4 @@
-import { prop, getModelForClass, modelOptions, Ref } from '@typegoose/typegoose';
+import { prop, modelOptions, Ref } from '@typegoose/typegoose';
 import DefaultModel from '@models/default.model';
 import { Member } from '@models/member.model';
 
@@ -13,8 +13,8 @@ class User extends DefaultModel {
   @prop({ default: false })
   public authenticated?: boolean;
 
-  @prop({ ref: () => Member, default: {} })
-  public member: Ref<Member>;
+  @prop({ ref: () => Member, foreignField: 'user', localField: '_id', justOne: true, autopopulate: true })
+  public member?: Ref<Member>;
 }
 
 // const UserModel = getModelForClass(User);

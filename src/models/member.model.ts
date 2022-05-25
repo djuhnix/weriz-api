@@ -1,33 +1,29 @@
-import { prop, getModelForClass, modelOptions, DocumentType, Ref } from '@typegoose/typegoose';
-import DefaultModel from '@models/default.model';
+import { prop, modelOptions, Ref, ReturnModelType } from '@typegoose/typegoose';
 import { Community } from '@models/community.model';
 import { User } from '@models/user.model';
+import DefaultModel from '@models/default.model';
 
 @modelOptions({ schemaOptions: { collection: 'members', timestamps: true } })
 class Member extends DefaultModel {
-  @prop({ type: String, required: true, unique: true })
+  @prop({ type: String, required: false })
   public firstname: string;
 
-  @prop({ type: String, required: true })
+  @prop({ type: String, required: false })
   public lastname: string;
 
-  @prop({
-    default: function (this: DocumentType<Member>) {
-      return `${this.firstname} ${this.lastname}`;
-    },
-  })
-  public fullName?: string;
-
-  @prop({ ref: () => User, required: true })
+  @prop({ ref: () => User, required: true /*, foreignField: 'member', localField: '_id', justOne: true */ })
   public user: Ref<User>;
 
-  @prop({ ref: () => Community, required: true, default: [] })
+  @prop({ ref: () => Community, required: true, default: [], foreignField: 'members', localField: '_id', justOne: false })
   public communities?: Ref<Community>[];
+
+  public get fullName() {
+    return `${this.firstname} ${this.lastname}`;
+  }
+
+  public static async findByUser(this: ReturnModelType<typeof Member>, userId: string) {
+    return this.findOne({ user: userId }).exec();
+  }
 }
 
-// const MemberModel = getModelForClass(Member);
-
-export {
-  Member,
-  // MemberModel
-};
+export { Member };
