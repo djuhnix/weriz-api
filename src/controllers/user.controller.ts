@@ -6,14 +6,15 @@ import { RequestWithUser } from '@interfaces/auth.interface';
 import { logger } from '@utils/logger';
 
 class UserController {
-  public userService = new UserService();
+  private _name = UserService.name + '.';
+  private userService = new UserService();
 
   public getUsers = async (req: Request, res: Response, next: NextFunction) => {
-    logger.info('getUsers.start');
+    logger.info(this._name + 'getUsers.start');
     try {
       const filter: GetUserDto = req.query;
       const findAllUsersData: User[] = await this.userService.findAllUser(filter);
-      logger.info('getUsers.end');
+      logger.info(this._name + 'getUsers.end');
       res.status(200).json({ data: findAllUsersData, message: 'findAll' });
     } catch (error) {
       next(error);
@@ -64,7 +65,6 @@ class UserController {
       next(error);
     }
   };
-
   public getConnected = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     logger.info(this.getConnected.name, 'start');
     try {
