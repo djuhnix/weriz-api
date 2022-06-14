@@ -1,10 +1,10 @@
-import { Models } from '@/models';
+import { Model } from '@/models';
 import { checkEmpty, checkObjectId } from '@utils/util';
 import { logger } from '@utils/logger';
 // import { getName } from '@typegoose/typegoose';
 
 abstract class BaseService<T> {
-  protected model: Models;
+  protected model: Model;
 
   protected async delete(id: string): Promise<T> {
     logger.info(this.model.name + 'Service.' + 'delete.start');
