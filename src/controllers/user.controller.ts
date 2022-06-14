@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { CreateUserDto, GetUserDto } from '@dtos/user.dto';
-import { User } from '@interfaces/users.interface';
+import { User } from '@models/user.model';
 import UserService from '@services/user.service';
 import { RequestWithUser } from '@interfaces/auth.interface';
 import { logger } from '@utils/logger';
@@ -65,6 +65,7 @@ class UserController {
       next(error);
     }
   };
+
   public getConnected = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     logger.info(this.getConnected.name, 'start');
     try {

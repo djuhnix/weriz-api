@@ -4,7 +4,7 @@ import { SECRET_KEY } from '@config';
 import { HttpException } from '@exceptions/HttpException';
 import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
 import { logger } from '@utils/logger';
-import userModel from '@models/user.model';
+import { UserModel } from '@/models';
 
 const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   logger.info(authMiddleware.name, 'start');
@@ -13,8 +13,8 @@ const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFun
 
     if (Authorization) {
       const verificationResponse = (await verify(Authorization, SECRET_KEY)) as DataStoredInToken;
-      const userId = verificationResponse._id;
-      const findUser = await userModel.findById(userId);
+      const userId = verificationResponse.id;
+      const findUser = await UserModel.findById(userId);
 
       if (findUser) {
         logger.info('user fetched from request data ', findUser);

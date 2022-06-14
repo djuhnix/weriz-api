@@ -4,7 +4,7 @@ import { SECRET_KEY } from '@config';
 import { CreateUserDto } from '@dtos/user.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
-import { User } from '@interfaces/users.interface';
+import { User } from '@models/user.model';
 import { UserModel } from '@/models';
 import { isEmpty } from '@utils/util';
 import UserService from '@services/user.service';
@@ -63,7 +63,7 @@ class AuthService {
   }
 
   public createToken(user: User): TokenData {
-    const dataStoredInToken: DataStoredInToken = { _id: user._id };
+    const dataStoredInToken: DataStoredInToken = { id: user.id };
     const secretKey: string = SECRET_KEY;
     const expiresIn: number = 60 * 60;
 
