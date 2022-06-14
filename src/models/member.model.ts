@@ -3,7 +3,7 @@ import { Community } from '@models/community.model';
 import { User } from '@models/user.model';
 import DefaultModel from '@models/default.model';
 
-@modelOptions({ schemaOptions: { collection: 'members', timestamps: true } })
+@modelOptions({ schemaOptions: { collection: 'members' } })
 class Member extends DefaultModel {
   @prop({ type: String, required: false, unique: true })
   public email: string;

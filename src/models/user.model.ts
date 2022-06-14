@@ -2,7 +2,7 @@ import { prop, modelOptions, Ref } from '@typegoose/typegoose';
 import DefaultModel from '@models/default.model';
 import { Member } from '@models/member.model';
 
-@modelOptions({ schemaOptions: { collection: 'users', timestamps: true } })
+@modelOptions({ schemaOptions: { collection: 'users' } })
 class User extends DefaultModel {
   @prop({ type: String, required: true, unique: true })
   public username: string;

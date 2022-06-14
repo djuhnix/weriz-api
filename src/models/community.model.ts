@@ -1,9 +1,9 @@
-import { prop, getModelForClass, modelOptions, DocumentType, Ref } from '@typegoose/typegoose';
+import { prop, modelOptions, DocumentType, Ref, ReturnModelType } from '@typegoose/typegoose';
 import { generateCommunityCode } from '@utils/util';
 import { Member } from '@models/member.model';
 import DefaultModel from '@models/default.model';
 
-@modelOptions({ schemaOptions: { collection: 'communities', timestamps: true } })
+@modelOptions({ schemaOptions: { collection: 'communities' } })
 class Community extends DefaultModel {
   @prop({ type: String, required: true })
   public name: string;
@@ -20,6 +20,10 @@ class Community extends DefaultModel {
 
   @prop({ ref: () => Member, required: true, default: [] })
   public members: Ref<Member>[];
+
+  public static async findByCode(this: ReturnModelType<typeof Community>, code: string) {
+    return this.findOne({ code: code }).exec();
+  }
 }
 
 // const CommunityModel = getModelForClass(Community);
