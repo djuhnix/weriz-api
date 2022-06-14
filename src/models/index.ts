@@ -21,4 +21,6 @@ const CommunityModel = getModelForClass(Community, globalOptions);
 const MemberModel = getModelForClass(Member, globalOptions);
 const UserModel = getModelForClass(User, globalOptions);
 
+export type Model = typeof CommunityModel | typeof MemberModel | typeof UserModel;
+
 export { UserModel, MemberModel, CommunityModel };
