@@ -9,4 +9,7 @@ export class CreateMemberDto {
 
   @IsNotEmpty()
   public userId: string;
+
+  @IsString()
+  public communityCode?: string;
 }
