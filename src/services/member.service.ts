@@ -3,10 +3,12 @@ import { CreateMemberDto } from '@dtos/member.dto';
 import { Member } from '@models/member.model';
 import { checkEmpty, checkObjectId } from '@utils/util';
 import { logger } from '@utils/logger';
+import BaseService from '@services/base.service';
 
-class MemberService {
+class MemberService extends BaseService<Member> {
   private readonly _name = MemberService.name + '.';
   private members = MemberModel;
+  protected model = MemberModel;
 
   public async findAllMember(filter: Partial<CreateMemberDto> = undefined): Promise<Member[]> {
     return this.members.find(filter);
@@ -52,12 +54,7 @@ class MemberService {
   }
 
   public async deleteMember(memberId: string): Promise<Member> {
-    logger.info(this._name + 'deleteMember.start');
-    checkObjectId(memberId);
-    const deletedMember: Member = await this.members.findByIdAndDelete(memberId);
-    checkEmpty(deletedMember, true);
-    logger.info(this._name + 'deleteMember.end');
-    return deletedMember;
+    return this.delete(memberId);
   }
 }
 

@@ -1,13 +1,16 @@
 import { hash } from 'bcrypt';
 import { CreateUserDto, GetUserDto } from '@dtos/user.dto';
 import { HttpException } from '@exceptions/HttpException';
-import { User } from '@interfaces/users.interface';
+// import { User } from '@interfaces/users.interface';
+import { User } from '@models/user.model';
 import { UserModel } from '@/models';
 import { checkEmpty, checkObjectId, isUserNameValid } from '@utils/util';
 import MemberService from '@services/member.service';
 import { logger } from '@utils/logger';
+import BaseService from '@services/base.service';
 
-class UserService {
+class UserService extends BaseService<User> {
+  protected model = UserModel;
   private users = UserModel;
   private memberService = new MemberService();
   private readonly _name = UserService.name + '.';
@@ -41,7 +44,7 @@ class UserService {
     const user: User = await this.users.create({ ...userData, password: hashedPassword });
     user.password = undefined;
 
-    await this.memberService.createMember({ userId: user._id });
+    await this.memberService.createMember({ userId: user.id });
     logger.info(this._name + 'createUser.end');
     return user;
   }
@@ -51,7 +54,7 @@ class UserService {
 
     if (userData.username) {
       const findUser: User = await this.users.findOne({ username: userData.username });
-      if (findUser && findUser._id != userId) throw new HttpException(409, `Username ${userData.username} already exists`);
+      if (findUser && findUser.id != userId) throw new HttpException(409, `Username ${userData.username} already exists`);
     }
 
     if (userData.password) {
@@ -66,10 +69,7 @@ class UserService {
   }
 
   public async deleteUser(userId: string): Promise<User> {
-    const deleteUserById: User = await this.users.findByIdAndDelete(userId);
-    checkEmpty(deleteUserById, true);
-
-    return deleteUserById;
+    return this.delete(userId);
   }
 }
 
