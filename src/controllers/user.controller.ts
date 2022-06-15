@@ -22,10 +22,11 @@ class UserController {
   };
 
   public getUserById = async (req: Request, res: Response, next: NextFunction) => {
+    logger.info(this._name + 'getUserById.start');
     try {
       const userId: string = req.params.id;
       const findOneUserData: User = await this.userService.findUserById(userId);
-
+      logger.info(this._name + 'getUserById.end');
       res.status(200).json({ data: findOneUserData, message: 'findOne' });
     } catch (error) {
       next(error);
