@@ -21,7 +21,7 @@ class Member extends DefaultModel {
   public communities?: Ref<Community>[];
 
   public get fullName() {
-    return `${this.firstname} ${this.lastname}`;
+    return this.firstname && this.lastname ? `${this.firstname} ${this.lastname}` : '';
   }
 
   public static async findByUser(this: ReturnModelType<typeof Member>, userId: string) {
