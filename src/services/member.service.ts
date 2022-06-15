@@ -19,7 +19,8 @@ class MemberService extends BaseService<Member> {
 
     checkObjectId(memberId);
     const member: Member = await this.members.findOne({ _id: memberId });
-    checkEmpty(member, true);
+    logger.info('member found', member.id);
+    checkEmpty(member);
 
     logger.info(this._name + 'findMemberById.end');
     return member;

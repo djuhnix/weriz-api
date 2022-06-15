@@ -43,11 +43,12 @@ export const generateCommunityCode = (base: string, length = 2): string => {
  * Verify whether a data is empty and throw an exception with 400 status code if true
  * @param data
  * @param conflict conflict mode throw a 409 exception if data is not empty
+ * @param type type of the data
  */
-export const checkEmpty = (data: any, conflict = false) => {
+export const checkEmpty = (data: any, conflict = false, type = '') => {
   const empty = isEmpty(data);
-  if (empty) throw new HttpException(400, `Empty data given ${typeof data}`);
-  else if (conflict && !empty) throw new HttpException(400, `Data given already exist ${typeof data}`);
+  if (empty) throw new HttpException(400, `Empty data ${type == '' ? typeof data : type}`);
+  else if (conflict && !empty) throw new HttpException(409, `Data given already exist ${typeof data}`);
 };
 
 /**
