@@ -1,5 +1,5 @@
 import { prop, modelOptions, DocumentType, Ref, ReturnModelType } from '@typegoose/typegoose';
-import { generateCommunityCode } from '@utils/util';
+import { checkCommunityCode, generateCommunityCode } from '@utils/util';
 import { Member } from '@models/member.model';
 import DefaultModel from '@models/default.model';
 
@@ -22,6 +22,7 @@ class Community extends DefaultModel {
   public members: Ref<Member>[];
 
   public static async findByCode(this: ReturnModelType<typeof Community>, code: string) {
+    checkCommunityCode(code);
     return this.findOne({ code: code }).exec();
   }
 }

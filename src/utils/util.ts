@@ -2,6 +2,7 @@ import { sample } from 'lodash';
 import { AlphabetEnum } from '@utils/enum/alphabet.enum';
 import { HttpException } from '@exceptions/HttpException';
 import { Types } from 'mongoose';
+import { error, exceptions } from 'winston';
 
 /**
  * @method isEmpty
@@ -37,6 +38,23 @@ export const generateCommunityCode = (base: string, length = 2): string => {
   }
 
   return randomWord.toLowerCase();
+};
+
+/**
+ * Check whether the given community code format is correct.
+ * @param code the community code
+ * @param length the expected length
+ */
+export const checkCommunityCode = (code: string, length = 4) => {
+  if (code.length != length) throw new HttpException(400, `community code length is ${code.length} but it should be ${length}`);
+  const badFormat = new HttpException(
+    400,
+    `The format of the given community code is incorrect, a community code should be a consonant followed by a vowel ${code.length / 2} times.`,
+  );
+  for (let i = 0; i < code.length; i++) {
+    if (i % 2 == 0) if (AlphabetEnum.CONSONANTS.indexOf(code[i]) == -1) throw badFormat;
+    if (i % 2 == 1) if (AlphabetEnum.VOWELS.indexOf(code[i]) == -1) throw badFormat;
+  }
 };
 
 /**

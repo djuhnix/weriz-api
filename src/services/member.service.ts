@@ -26,6 +26,18 @@ class MemberService extends BaseService<Member> {
     return member;
   }
 
+  public async findMemberByUser(userId: string): Promise<Member> {
+    logger.info(this._name + 'findMemberByUser.start');
+
+    logger.info('user id', userId);
+    const member: Member = await this.members.findByUser(userId);
+    logger.info('member found', member.id);
+    checkEmpty(member);
+
+    logger.info(this._name + 'findMemberByUser.end');
+    return member;
+  }
+
   public async createMember(memberData: CreateMemberDto): Promise<Member> {
     logger.info(this._name + 'createMember.start');
     checkEmpty(memberData);

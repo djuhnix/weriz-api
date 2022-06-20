@@ -1,7 +1,7 @@
 import MemberService from '@services/member.service';
 import { NextFunction, Request, Response } from 'express';
 import { logger } from '@utils/logger';
-import { CreateMemberDto } from '@dtos/member.dto';
+import { GetMemberDto } from '@dtos/member.dto';
 import { Member } from '@models/member.model';
 
 class MemberController {
@@ -11,7 +11,7 @@ class MemberController {
   public getMembers = async (req: Request, res: Response, next: NextFunction) => {
     logger.info(this._name + 'getMembers.end');
     try {
-      const filter: Partial<CreateMemberDto> = req.query;
+      const filter: GetMemberDto = req.query;
       const members: Member[] = await this.memberService.findAllMember(filter);
       logger.info(this._name + 'getMembers.end');
       res.status(200).json({ data: members, message: 'findAll' });

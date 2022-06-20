@@ -2,6 +2,7 @@ import { prop, modelOptions, Ref, ReturnModelType } from '@typegoose/typegoose';
 import { Community } from '@models/community.model';
 import { User } from '@models/user.model';
 import DefaultModel from '@models/default.model';
+import { checkObjectId } from '@utils/util';
 
 @modelOptions({ schemaOptions: { collection: 'members' } })
 class Member extends DefaultModel {
@@ -25,6 +26,7 @@ class Member extends DefaultModel {
   }
 
   public static async findByUser(this: ReturnModelType<typeof Member>, userId: string) {
+    checkObjectId(userId);
     return this.findOne({ user: userId }).exec();
   }
 }
