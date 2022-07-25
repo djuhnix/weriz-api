@@ -23,25 +23,29 @@ services:
       dockerfile: .docker/node/Dockerfile
       args:
         - PORT=${PORT}
-    ports:
-      - ${PORT}:${PORT}
-    volumes:
-      - ./:/app
-      - /app/node_modules
+    #ports:
+    #  - ${PORT}:${PORT}
     restart: 'unless-stopped'
     networks:
       - backend
     links:
+      - proxy
       - database
     depends_on:
+      - proxy
       - database
   database:
-    image: mvertes/alpine-mongo
+    image: mongo
     container_name: ${APP_NAME}-db
     environment:
-      - DB_PORT=${DB_PORT}
+      - MONGO_INITDB_ROOT_USERNAME=${DB_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${DB_PASS}
+      - MONGO_INITDB_DATABASE=${DB_DATABASE}
     ports:
-      - ${DB_PORT}:${DB_PORT}
+      - ${DB_PORT}
+    command: mongod
+    volumes:
+      - data:/data/db
     networks:
       - backend
 
@@ -53,3 +57,4 @@ networks:
 volumes:
   data:
     driver: local
+
