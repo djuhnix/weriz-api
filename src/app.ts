@@ -49,9 +49,17 @@ class App {
       set('debug', true);
     }
 
+    const logUrl = () => logger.info(`database url ${dbConnection}`);
+
     connect(dbConnection)
-      .then(() => logger.info('connected to database successfully'))
-      .catch(error => logger.error('connection to database failed :', error));
+      .then(() => {
+        logUrl();
+        logger.info('connected to database successfully')
+      })
+      .catch(error => {
+        logUrl();
+        logger.error('connection to database failed :', error)
+      });
   }
 
   private initializeMiddlewares() {
