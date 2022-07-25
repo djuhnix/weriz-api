@@ -1,9 +1,12 @@
 include .env.development
 
+.env.development:
+	cp .env.sample .env.development
+
 dev:
-	docker-compose --env-file .env.development up -d
+	docker compose --env-file .env.development up -d
 dev-build:
-	docker-compose --env-file .env.development up --build -d
+	docker compose --env-file .env.development up --build -d
 build:
 	docker build -t ${tag} .
 clean:
