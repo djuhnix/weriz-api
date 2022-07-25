@@ -18,6 +18,8 @@ export const {
   DB_HOST,
   DB_PORT,
   DB_DATABASE,
+  DB_USER,
+  DB_PASS,
   SECRET_KEY,
   LOG_FORMAT,
   LOG_DIR,
