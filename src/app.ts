@@ -54,11 +54,11 @@ class App {
     connect(dbConnection)
       .then(() => {
         logUrl();
-        logger.info('connected to database successfully')
+        logger.info('connected to database successfully');
       })
       .catch(error => {
         logUrl();
-        logger.error('connection to database failed :', error)
+        logger.error('connection to database failed :', error);
       });
   }
 
