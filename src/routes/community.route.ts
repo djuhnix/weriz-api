@@ -6,7 +6,7 @@ import { CreateCommunityDto, GetCommunityDto, JoinCommunityDto } from '@dtos/com
 import authMiddleware from '@middlewares/auth.middleware';
 
 class CommunityRoute implements Routes {
-  public path = '/communities';
+  public path = '/community';
   public router = Router();
   public controller = new CommunityController();
 
@@ -16,6 +16,18 @@ class CommunityRoute implements Routes {
 
   private initializeRoutes() {
     this.router
+      /**
+       * @swagger
+       * /community:
+       *   get:
+       *     summary: Get communities
+       *     description: Retrieve a list of communities in the database
+       *     tags: ["Community"]
+       *   post:
+       *     summary: Create a community
+       *     description: Send community data to create a new one in the database
+       *     tags: ["Community"]
+       */
       .route(`${this.path}`)
       .get(authMiddleware, validationMiddleware(GetCommunityDto, 'query'), this.controller.getCommunities)
       .post(authMiddleware, validationMiddleware(CreateCommunityDto, 'body'), this.controller.createCommunity);
