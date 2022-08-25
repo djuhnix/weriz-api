@@ -7,7 +7,7 @@ import { isEmpty } from '@utils/util';
 
 // logs dir
 const logDir: string = join(__dirname, LOG_DIR);
-console.log(logDir);
+// console.log(logDir);
 
 if (!existsSync(logDir)) {
   mkdirSync(logDir);
