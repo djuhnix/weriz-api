@@ -12,6 +12,7 @@ export const LOCALE = 'fr-FR';
 export const {
   APP_NAME,
   APP_VERSION,
+  APP_CLIENT_URL,
   NODE_ENV,
   PORT,
   PROXY_EXT_PORT,
@@ -29,4 +30,7 @@ export const {
   AWS_SECRET_KEY,
   AWS_BUCKET,
   AWS_REGION,
+  MAILER_HOST,
+  MAILER_USER,
+  MAILER_PASS,
 } = process.env;
