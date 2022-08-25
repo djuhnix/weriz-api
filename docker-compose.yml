@@ -23,9 +23,11 @@ services:
       dockerfile: .docker/node/Dockerfile
       args:
         - PORT=${PORT}
-    #ports:
-    #  - ${PORT}:${PORT}
+    ports:
+      - ${PORT}
     restart: unless-stopped
+    volumes:
+      - ./src:/app/src
     networks:
       - backend
     links:

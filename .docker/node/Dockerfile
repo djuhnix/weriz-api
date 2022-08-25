@@ -31,7 +31,7 @@ ENV NODE_ENV development
 COPY --from=common-build-stage /app/node_modules ./node_modules
 COPY . .
 
-#EXPOSE $PORT
+EXPOSE $PORT
 
 CMD ["yarn", "dev"]
 
