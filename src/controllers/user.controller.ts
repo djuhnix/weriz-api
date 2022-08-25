@@ -4,6 +4,7 @@ import { User } from '@models/user.model';
 import UserService from '@services/user.service';
 import { RequestWithUser } from '@interfaces/auth.interface';
 import { logger } from '@utils/logger';
+import userService from "@services/user.service";
 
 class UserController {
   private _name = UserService.name + '.';
@@ -13,7 +14,13 @@ class UserController {
     logger.info(this._name + 'getUsers.start');
     try {
       const filter: GetUserDto = req.query;
-      const findAllUsersData: User[] = await this.userService.findAllUser(filter);
+      let findAllUsersData: User[];
+      if (filter.email) {
+        const user: User = await this.userService.findUserByEmail(filter.email);
+        findAllUsersData = [user];
+      } else {
+        findAllUsersData = await this.userService.findAllUser(filter);
+      }
       logger.info(this._name + 'getUsers.end');
       res.status(200).json({ data: findAllUsersData, message: 'findAll' });
     } catch (error) {
