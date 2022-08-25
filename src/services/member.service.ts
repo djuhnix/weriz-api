@@ -26,6 +26,17 @@ class MemberService extends BaseService<Member> {
     return member;
   }
 
+  public async findMemberByEmail(memberEmail: string): Promise<Member> {
+    logger.info(this._name + 'findMemberByEmail.start');
+
+    const member: Member = await this.members.findOne({ email: memberEmail });
+    checkEmpty(member);
+    if (member) logger.info('member found', { id: member.id });
+
+    logger.info(this._name + 'findMemberByEmail.end');
+    return member;
+  }
+
   public async findMemberByUser(userId: string): Promise<Member> {
     logger.info(this._name + 'findMemberByUser.start');
 
@@ -46,11 +57,12 @@ class MemberService extends BaseService<Member> {
     const result = await this.members.findOrCreate({
       firstname: memberData.firstname,
       lastname: memberData.lastname,
+      email: memberData.email,
       user: { _id: memberData.userId },
     });
     const member: Member = result.doc;
 
-    logger.info(`member ${result.created ? 'created' : 'found'}`, JSON.stringify(member));
+    logger.info(`member ${result.created ? 'created' : 'found'}`, { email: member.email });
     logger.info(this._name + 'createMember.end');
     return member;
   }

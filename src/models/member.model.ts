@@ -6,8 +6,11 @@ import { checkObjectId } from '@utils/util';
 
 @modelOptions({ schemaOptions: { collection: 'members' } })
 class Member extends DefaultModel {
-  @prop({ type: String, required: false, unique: true })
+  @prop({ type: String, required: false, unique: true, trim: true, index: true, sparse: true })
   public email: string;
+
+  @prop({ type: Boolean, required: false, default: false })
+  public emailVerified: boolean;
 
   @prop({ type: String, required: false })
   public firstname: string;
