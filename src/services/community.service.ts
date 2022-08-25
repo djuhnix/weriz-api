@@ -5,9 +5,7 @@ import { logger } from '@utils/logger';
 import { checkEmpty, checkObjectId } from '@utils/util';
 import BaseService from '@services/base.service';
 import MemberService from './member.service';
-import memberService from './member.service';
-import { User } from '../models/user.model';
-import { Member } from '../models/member.model';
+import { Member } from '@models/member.model';
 
 class CommunityService extends BaseService<Community> {
   private communities = CommunityModel;
