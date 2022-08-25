@@ -41,6 +41,26 @@ class AuthController {
       next(error);
     }
   };
+
+  public forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userData: Pick<CreateUserDto, 'email'> = req.body;
+      const resultData: boolean = await this.authService.forgotPassword(userData.email);
+      res.status(200).json({ data: resultData, message: resultData ? 'email sent' : 'error sending email' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userData: Pick<CreateUserDto, 'password'> & { token: string } = req.body;
+      const resultData: User = await this.authService.resetPassword(userData.password, userData.token);
+      res.status(200).json({ data: resultData, message: 'password reset' });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default AuthController;

@@ -1,6 +1,6 @@
 import { compare } from 'bcrypt';
-import { sign } from 'jsonwebtoken';
-import { SECRET_KEY } from '@config';
+import { sign, decode, JwtPayload, verify } from 'jsonwebtoken';
+import { APP_CLIENT_URL } from '@config';
 import { CreateUserDto } from '@dtos/user.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
@@ -9,10 +9,12 @@ import { UserModel } from '@/models';
 import { isEmpty } from '@utils/util';
 import UserService from '@services/user.service';
 import { logger } from '@utils/logger';
+import MailerService from '@services/mailer.service';
 
 class AuthService {
   private readonly _name = AuthService.name + '.';
   private userService = new UserService();
+  private mailerService = new MailerService();
 
   public async signup(userData: CreateUserDto): Promise<User> {
     return this.userService.createUser(userData);
@@ -54,6 +56,39 @@ class AuthService {
     return user;
   }
 
+  public async forgotPassword(email: string) {
+    logger.info(this._name + 'forgotPassword.start');
+    const user = await this.userService.findUserByEmail(email);
+    // const member: Member = user.member;
+    if (!user) throw new HttpException(404, 'user not found');
+    const token = this.createToken(user).token;
+
+    logger.info(this._name + 'forgotPassword.end');
+    return this.mailerService.sendEmail(email, 'Reinitialisation de mot de passe', 'password_reset', {
+      username: user.username,
+      client_url: APP_CLIENT_URL,
+      token: token,
+    });
+  }
+
+  public async resetPassword(password: string, token: string): Promise<User> {
+    logger.info(this._name + 'resetPassword.start');
+    const payload: JwtPayload | string = decode(token);
+    logger.info('reset password token payload', payload);
+    const user: User = await this.userService.findUserById(payload['id']);
+    if (!user) throw new HttpException(404, 'user not found');
+
+    try {
+      verify(token, user.password + user.id + user.createdAt);
+      logger.info('reset password token verified');
+    } catch (error) {
+      logger.error('an error occurred while verifying token', error);
+      throw new HttpException(401, 'Unable to verify the token');
+    }
+    logger.info(this._name + 'resetPassword.end');
+    return await this.userService.updateUser(user.id, { password: password });
+  }
+
   private static handleUserAuthenticatedDBUpdate(error) {
     if (error) {
       logger.error(error);
@@ -62,10 +97,10 @@ class AuthService {
     logger.info('user.authenticated set to true');
   }
 
-  public createToken(user: User): TokenData {
+  public createToken(user: User, expire = 3600): TokenData {
     const dataStoredInToken: DataStoredInToken = { id: user.id };
-    const secretKey: string = SECRET_KEY;
-    const expiresIn: number = 60 * 60;
+    const secretKey: string = user.password + user.id + user.createdAt; // SECRET_KEY;
+    const expiresIn: number = expire;
 
     return { expiresIn, token: sign(dataStoredInToken, secretKey, { expiresIn }) };
   }
