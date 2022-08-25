@@ -82,17 +82,30 @@ class App {
   private initializeSwagger() {
     const options = {
       swaggerDefinition: {
+        openapi: '3.0.0',
         info: {
           title: APP_NAME,
           version: APP_VERSION,
           description: 'REST API routes documentation',
         },
+        servers: [
+          {
+            url: 'http://localhost:8080',
+            description: 'Development server',
+          },
+        ],
+        host: 'localhost:8080',
+        basePath: '/',
+        schemes: ['http', 'https'],
+        consumes: ['application/json'],
+        produces: ['application/json'],
       },
-      apis: ['./config/swagger.yaml'],
+      apis: ['./config/swagger.yaml', './src/routes/*.ts'],
     };
 
     const specs = swaggerJSDoc(options);
     this.app.use('/docs', swaggerUi.serve, swaggerUi.setup(specs));
+    logger.info('init swagger');
   }
 
   private initializeErrorHandling() {
