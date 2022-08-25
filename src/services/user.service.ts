@@ -8,6 +8,8 @@ import { checkEmpty, checkObjectId, isUserNameValid } from '@utils/util';
 import MemberService from '@services/member.service';
 import { logger } from '@utils/logger';
 import BaseService from '@services/base.service';
+import { Member } from '@models/member.model';
+import { CreateMemberDto } from '@dtos/member.dto';
 
 class UserService extends BaseService<User> {
   protected model = UserModel;
@@ -23,8 +25,18 @@ class UserService extends BaseService<User> {
     logger.info(this._name + 'findUserById.start');
     checkObjectId(userId);
     const findUser: User = await this.users.findOne({ _id: userId }, { password: 0 });
-    checkEmpty(findUser, true);
+    checkEmpty(findUser);
     logger.info(this._name + 'findUserById.end');
+    return findUser;
+  }
+
+  public async findUserByEmail(userEmail: string): Promise<User> {
+    logger.info(this._name + 'findUserByEmail.start');
+    const member: Member = await this.memberService.findMemberByEmail(userEmail);
+    const findUser: User = await this.findUserById(member.user._id.toString());
+    checkEmpty(findUser);
+    logger.info('user found', { username: findUser.username });
+    logger.info(this._name + 'findUserByEmail.end');
     return findUser;
   }
 
@@ -43,13 +55,15 @@ class UserService extends BaseService<User> {
 
     const user: User = await this.users.create({ ...userData, password: hashedPassword });
     user.password = undefined;
-
-    await this.memberService.createMember({ userId: user.id });
+    const memberData: CreateMemberDto = { userId: user.id };
+    if (userData.email) memberData.email = userData.email;
+    await this.memberService.createMember(memberData);
     logger.info(this._name + 'createUser.end');
     return user;
   }
 
-  public async updateUser(userId: string, userData: CreateUserDto): Promise<User> {
+  public async updateUser(userId: string, userData: Partial<CreateUserDto>): Promise<User> {
+    logger.info(this._name + 'updateUser.start');
     checkEmpty(userData);
 
     if (userData.username) {
@@ -60,11 +74,13 @@ class UserService extends BaseService<User> {
     if (userData.password) {
       const hashedPassword = await hash(userData.password, 10);
       userData = { ...userData, password: hashedPassword };
+      logger.info('user password changed');
     }
 
-    const updateUserById: User = await this.users.findByIdAndUpdate(userId, { userData });
-    checkEmpty(updateUserById, true);
+    const updateUserById: User = await this.users.findByIdAndUpdate(userId, userData);
+    checkEmpty(updateUserById);
 
+    logger.info(this._name + 'updateUser.end');
     return updateUserById;
   }
 
