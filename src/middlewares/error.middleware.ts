@@ -8,6 +8,7 @@ const errorMiddleware = (error: HttpException, req: Request, res: Response, next
   try {
     const status: number = error.status || 500;
     const message: string = isInstance(error, HttpException) ? error.message : 'internal_error';
+    logger.error(error);
     logger.error(`status = ${status}, message = ${message}`);
 
     res.status(status).json({ message, error: NODE_ENV == 'development' ? error : {} });
