@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
 import request from 'supertest';
 import App from '@/app';
-import { CreateUserDto } from '@dtos/users.dto';
+import { CreateUserDto } from '../dtos/user.dto';
 import AuthRoute from '@routes/auth.route';
 
 afterAll(async () => {
@@ -13,7 +13,7 @@ describe('Testing Auth', () => {
   describe('[POST] /signup', () => {
     it('response should have the Create userData', async () => {
       const userData: CreateUserDto = {
-        email: 'test@email.com',
+        username: 'test@email.com',
         password: 'q1w2e3r4!',
       };
 
@@ -23,7 +23,7 @@ describe('Testing Auth', () => {
       users.findOne = jest.fn().mockReturnValue(null);
       users.create = jest.fn().mockReturnValue({
         _id: '60706478aad6c9ad19a31c84',
-        email: userData.email,
+        email: userData.username,
         password: await bcrypt.hash(userData.password, 10),
       });
 
@@ -36,7 +36,7 @@ describe('Testing Auth', () => {
   describe('[POST] /login', () => {
     it('response should have the Set-Cookie header with the Authorization token', async () => {
       const userData: CreateUserDto = {
-        email: 'test@email.com',
+        username: 'test@email.com',
         password: 'q1w2e3r4!',
       };
 
@@ -45,7 +45,7 @@ describe('Testing Auth', () => {
 
       users.findOne = jest.fn().mockReturnValue({
         _id: '60706478aad6c9ad19a31c84',
-        email: userData.email,
+        username: userData.username,
         password: await bcrypt.hash(userData.password, 10),
       });
 

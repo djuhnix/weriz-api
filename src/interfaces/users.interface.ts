@@ -1,5 +1,6 @@
+// not used
 export interface User {
-  _id: string;
-  email: string;
-  password: string;
+  username: string;
+  password?: string;
+  authenticated?: boolean;
 }

@@ -8,7 +8,7 @@ import morgan from 'morgan';
 import { connect, set } from 'mongoose';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-import { NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS } from '@config';
+import { NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS, APP_NAME, APP_VERSION } from '@config';
 import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
@@ -34,7 +34,7 @@ class App {
   public listen() {
     this.app.listen(this.port, () => {
       logger.info(`=================================`);
-      logger.info(`======= ENV: ${this.env} =======`);
+      logger.info(`======= ENV: ${this.env} ========`);
       logger.info(`🚀 App listening on the port ${this.port}`);
       logger.info(`=================================`);
     });
@@ -49,7 +49,17 @@ class App {
       set('debug', true);
     }
 
-    connect(dbConnection);
+    const logUrl = () => logger.info(`database url ${dbConnection}`);
+
+    connect(dbConnection)
+      .then(() => {
+        logUrl();
+        logger.info('connected to database successfully');
+      })
+      .catch(error => {
+        logUrl();
+        logger.error('connection to database failed :', error);
+      });
   }
 
   private initializeMiddlewares() {
@@ -72,17 +82,30 @@ class App {
   private initializeSwagger() {
     const options = {
       swaggerDefinition: {
+        openapi: '3.0.0',
         info: {
-          title: 'WERIZ API',
-          version: '1.0.0',
+          title: APP_NAME,
+          version: APP_VERSION,
           description: 'REST API routes documentation',
         },
+        servers: [
+          {
+            url: 'http://localhost:8080',
+            description: 'Development server',
+          },
+        ],
+        host: 'localhost:8080',
+        basePath: '/',
+        schemes: ['http', 'https'],
+        consumes: ['application/json'],
+        produces: ['application/json'],
       },
-      apis: ['./config/swagger.yaml'],
+      apis: ['./config/swagger.yaml', './src/routes/*.ts'],
     };
 
     const specs = swaggerJSDoc(options);
     this.app.use('/docs', swaggerUi.serve, swaggerUi.setup(specs));
+    logger.info('init swagger');
   }
 
   private initializeErrorHandling() {

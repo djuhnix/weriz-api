@@ -1,15 +1,27 @@
 import { NextFunction, Request, Response } from 'express';
-import { CreateUserDto } from '@dtos/users.dto';
-import { User } from '@interfaces/users.interface';
-import UserService from '@services/users.service';
+import { CreateUserDto, GetUserDto } from '@dtos/user.dto';
+import { User } from '@models/user.model';
+import UserService from '@services/user.service';
+import { RequestWithUser } from '@interfaces/auth.interface';
+import { logger } from '@utils/logger';
+import userService from "@services/user.service";
 
-class UsersController {
-  public userService = new UserService();
+class UserController {
+  private _name = UserService.name + '.';
+  private userService = new UserService();
 
   public getUsers = async (req: Request, res: Response, next: NextFunction) => {
+    logger.info(this._name + 'getUsers.start');
     try {
-      const findAllUsersData: User[] = await this.userService.findAllUser();
-
+      const filter: GetUserDto = req.query;
+      let findAllUsersData: User[];
+      if (filter.email) {
+        const user: User = await this.userService.findUserByEmail(filter.email);
+        findAllUsersData = [user];
+      } else {
+        findAllUsersData = await this.userService.findAllUser(filter);
+      }
+      logger.info(this._name + 'getUsers.end');
       res.status(200).json({ data: findAllUsersData, message: 'findAll' });
     } catch (error) {
       next(error);
@@ -17,10 +29,11 @@ class UsersController {
   };
 
   public getUserById = async (req: Request, res: Response, next: NextFunction) => {
+    logger.info(this._name + 'getUserById.start');
     try {
       const userId: string = req.params.id;
       const findOneUserData: User = await this.userService.findUserById(userId);
-
+      logger.info(this._name + 'getUserById.end');
       res.status(200).json({ data: findOneUserData, message: 'findOne' });
     } catch (error) {
       next(error);
@@ -60,6 +73,17 @@ class UsersController {
       next(error);
     }
   };
+
+  public getConnected = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    logger.info(this.getConnected.name, 'start');
+    try {
+      const userData: User = req.user;
+      logger.info(this.getConnected.name, 'end');
+      res.status(200).json({ data: userData, message: 'connected' });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
-export default UsersController;
+export default UserController;

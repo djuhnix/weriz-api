@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
-import { CreateUserDto } from '@dtos/users.dto';
+import { CreateUserDto } from '@dtos/user.dto';
 import { RequestWithUser } from '@interfaces/auth.interface';
-import { User } from '@interfaces/users.interface';
+import { User } from '@models/user.model';
 import AuthService from '@services/auth.service';
 
 class AuthController {
@@ -21,10 +21,10 @@ class AuthController {
   public logIn = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userData: CreateUserDto = req.body;
-      const { cookie, findUser } = await this.authService.login(userData);
+      const { cookie, user, tokenData } = await this.authService.login(userData);
 
       res.setHeader('Set-Cookie', [cookie]);
-      res.status(200).json({ data: findUser, message: 'login' });
+      res.status(200).json({ data: { user, tokenData }, message: 'login' });
     } catch (error) {
       next(error);
     }
@@ -37,6 +37,26 @@ class AuthController {
 
       res.setHeader('Set-Cookie', ['Authorization=; Max-age=0']);
       res.status(200).json({ data: logOutUserData, message: 'logout' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userData: Pick<CreateUserDto, 'email'> = req.body;
+      const resultData: boolean = await this.authService.forgotPassword(userData.email);
+      res.status(200).json({ data: resultData, message: resultData ? 'email sent' : 'error sending email' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userData: Pick<CreateUserDto, 'password'> & { token: string } = req.body;
+      const resultData: User = await this.authService.resetPassword(userData.password, userData.token);
+      res.status(200).json({ data: resultData, message: 'password reset' });
     } catch (error) {
       next(error);
     }

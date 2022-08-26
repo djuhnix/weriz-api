@@ -1,14 +1,17 @@
 import { NextFunction, Request, Response } from 'express';
 import { HttpException } from '@exceptions/HttpException';
 import { logger } from '@utils/logger';
+import { NODE_ENV } from '@config';
+import { isInstance } from 'class-validator';
 
 const errorMiddleware = (error: HttpException, req: Request, res: Response, next: NextFunction) => {
   try {
     const status: number = error.status || 500;
-    const message: string = error.message || 'Something went wrong';
+    const message: string = isInstance(error, HttpException) ? error.message : 'internal_error';
+    logger.error(error);
+    logger.error(`status = ${status}, message = ${message}`);
 
-    logger.error(`[${req.method}] ${req.path} >> StatusCode:: ${status}, Message:: ${message}`);
-    res.status(status).json({ message });
+    res.status(status).json({ message, error: NODE_ENV == 'development' ? error : {} });
   } catch (error) {
     next(error);
   }

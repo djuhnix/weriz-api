@@ -3,20 +3,23 @@ import { verify } from 'jsonwebtoken';
 import { SECRET_KEY } from '@config';
 import { HttpException } from '@exceptions/HttpException';
 import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
-import userModel from '@models/users.model';
+import { logger } from '@utils/logger';
+import { UserModel } from '@/models';
 
 const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  logger.info(authMiddleware.name, 'start');
   try {
     const Authorization = req.cookies['Authorization'] || (req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null);
 
     if (Authorization) {
-      const secretKey: string = SECRET_KEY;
-      const verificationResponse = (await verify(Authorization, secretKey)) as DataStoredInToken;
-      const userId = verificationResponse._id;
-      const findUser = await userModel.findById(userId);
+      const verificationResponse = (await verify(Authorization, SECRET_KEY)) as DataStoredInToken;
+      const userId = verificationResponse.id;
+      const findUser = await UserModel.findById(userId);
 
       if (findUser) {
+        logger.info('user fetched from request data ', findUser);
         req.user = findUser;
+        logger.info(authMiddleware.name, 'end');
         next();
       } else {
         next(new HttpException(401, 'Wrong authentication token'));
@@ -25,6 +28,7 @@ const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFun
       next(new HttpException(404, 'Authentication token missing'));
     }
   } catch (error) {
+    logger.error(error.message, error);
     next(new HttpException(401, 'Wrong authentication token'));
   }
 };
